@@ -1,0 +1,34 @@
+version: "3.7"
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./enovy-reverse-proxy.yaml
+        target: /etc/envoy.yaml
+    networks:
+      - envoylbnet
+    expose:
+      - "8001"
+    ports:
+      - "8001:8001"
+
+  upstream:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./enovy-upstream-proxy.yaml
+        target: /etc/envoy.yaml
+    networks:
+      - envoylbnet
+    expose:
+      - "8002"
+    ports:
+      - "8002:8002"
+
+networks:
+  envoylbnet: {}
