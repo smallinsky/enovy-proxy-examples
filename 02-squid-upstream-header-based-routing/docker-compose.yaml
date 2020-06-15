@@ -1,0 +1,45 @@
+version: "3.7"
+services:
+  proxy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - type: bind
+        source: ./enovy-reverse-proxy.yaml
+        target: /etc/envoy.yaml
+    networks:
+      - envoylbnet
+    expose:
+      - "8001"
+    ports:
+      - "8001:8001"
+
+  squid:
+    image: datadog/squid
+    volumes:
+      - type: bind
+        source: ./squid.conf
+        target: /etc/squid/squid.conf
+      - type: bind
+        source: ./urlrewrite.pl
+        target: /etc/squid/urlrewrite.pl
+    networks:
+      - envoylbnet
+    expose:
+      - "3128"
+    ports:
+      - "3128:3128"
+      
+  ncserver:
+    image: busybox
+    command: ["nc", "-l", "-p", "8080"]
+    networks:
+      - envoylbnet
+    expose:
+      - "8080"
+    ports:
+      - "8080:8080"
+        
+networks:
+  envoylbnet: {}
